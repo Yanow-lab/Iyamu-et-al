@@ -47,7 +47,7 @@ alignments = align.align_optimal(FCR3_seq, NF54_seq, matrix,
 
 ```python
 #import pandas as pd
-import SignalArray0 as sa
+import SignalArray as sa
 ```
 
 ```python
@@ -119,14 +119,14 @@ score = sa.signal_map(gapd_s1, gapd_s2,)
 ## Plot
 
 ```python
-import ArrayPlotter4 as ap4
+import ArrayPlotter as ap
 
 """ my module ArrayPlotter2 has a class and a function
     that uses objects from that class
 """
 fig = plt.figure(figsize=(20, 16))
 ax = fig.add_subplot(111)
-ap4.plot_alignment_array(
+ap.plot_alignment_array(
     ax, alignments[0], fl_score= score, labels=["FCR3", "NF54"],
     show_numbers=True,symbols_per_line= 120, show_line_position=True 
 )
