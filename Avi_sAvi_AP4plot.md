@@ -304,17 +304,22 @@ _get_signal(score, 3,0)
 ## Plot
 
 ```python
-import ArrayPlotter4 as ap4
+symbol_plotter = ap.ArrayPlotter(ax, score)
+```
+
+```python
+import ArrayPlotter as ap
 
 """ my module ArrayPlotter2 has a class and a function
     that uses objects from that class
 """
 fig = plt.figure(figsize=(8, 2.5))
 ax = fig.add_subplot(111)
-ap4.plot_alignment_array(ax, alignments[0], fl_score= score,
+ap.plot_alignment_array(ax, alignments[0], fl_score= score,
      labels=["Avi", "sAvi"],show_numbers=True,
     symbols_per_line= 50, show_line_position=True) 
 
+fig.colorbar(symbol_plotter,ax=ax)
 fig.tight_layout()
 
 plt.show()
