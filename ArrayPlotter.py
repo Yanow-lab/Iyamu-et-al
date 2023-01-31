@@ -10,8 +10,33 @@ from biotite.sequence.graphics.colorschemes import get_color_scheme
 
 class ArrayPlotter(LetterPlotter):
     """
-    This :class:`SymbolPlotter` plots peptide recognition data  
-    for two protein sequences represented as global aligment 
+    This SymbolPlotter maps data from epitope scannings on arrays 
+    of overlapping peptides, onto proteins represented as sequencece aligment.
+    Symbols are visualized as characters on a colored background box. The 
+    color of a given box represent the recognition signal of the respective 
+    20-mer peptide ending at that residue. The intensity of the color is 
+    proportional to the fluorescence intensity recorded on the peptide array
+    Fluorescence values are proportional to antibody recognition on 
+    the peptide array.
+    
+    Parameters
+    ----------
+    axes : Axes
+        A Matplotlib axes, that is used as plotting area.
+    fl_score : numpy.ndarray 
+        The ndarray to map fluorescence values to score residues.
+        By default the normalized score is 1 for maximun recognition
+        and 0 for non-recognition(no color).
+    color_symbols : bool, optional
+        If true, the symbols themselves are colored.
+        If false, the symbols are black, and the boxes behind the
+        symbols are colored.
+    font_size : float, optional
+        Font size of the sequence symbols.
+    font_param : dict, optional
+        Additional parameters that is given to the
+        matplotlib.Text instance of each symbol.
+    
     """
     def __init__(self, axes, fl_score, color_symbols=False,
                  font_size=None, font_param=None):
@@ -29,12 +54,32 @@ class ArrayPlotter(LetterPlotter):
      
                              
     def get_color(self, alignment, column_i, seq_i):
+        '''
+        Get the color of a symbol at a specified position in the
+        alignment.
+        The symbol is specified as position in the alignment's trace
+        (trace[pos_i, seq_i]).
+
+        Parameters
+        ----------
+        alignment : Alignment
+            The respective alignment.
+        column_i : int
+            The position index in the trace.
+        seq_i : int
+            The sequence index in the trace.
+        Returns
+        -------
+        color : object
+            A *Matplotlib* compatible color used for the background
+            or at the specifed position
+            '''
         index1 = alignment.trace[column_i, seq_i]
         if index1 == -1:
             spot_signal = 0
         else:
             spot_signal = self._get_signal(self.fl_score, column_i, seq_i)
-#            spot_signal = 0.2                                          # from 0 to 0.9 it gives shades of green
+           # spot_signal = 0.2  # from 0 to 0.9 it gives shades of orange
         return self._cmap(spot_signal)
 
 
@@ -48,6 +93,11 @@ class ArrayPlotter(LetterPlotter):
 
             
     def plot_symbol(self, bbox, alignment, column_i, seq_i):
+        '''
+        This method is optimized to draw the symbols of an alignment while
+        mapping the epitope scanning data throughout the entire sequence 
+        alignment.
+        '''
         from matplotlib.patches import Rectangle
 
         trace = alignment.trace
@@ -116,12 +166,88 @@ def plot_alignment_array(axes, alignment, symbols_per_line=50,
                                     symbol_size=None, symbol_param=None):
 
     """
-    Plot a pairwise sequence alignment highlighting
-    the sequence recognition regions per alignment column
+    Plots a pairwise sequence alignment using an ArrayPloter instance.
+    Higlights sequence recognition regions at the positions of the respective 
+    score residue per alignment column.
+    
+    Parameters
+    ----------
+    axes : Axes
+        A Matplotlib axes, that is used as plotting area.
+    alignment : Alignment
+        The pairwise sequence alignment to be plotted.
+    symbol_plotter : SymbolPlotter
+        Instance of ArrayPlotter. Defines how the symbols are drawn
+        in the alignment.
+    symbols_per_line : int, optional
+        The amount of alignment columns that are diplayed per line.
+    show_numbers : bool, optional
+        If true, the sequence position of the symbols in the last
+        alignment column of a line is shown on the right side of the
+        plot.
+        If the last symbol is a gap, the position of the last actual
+        symbol before this gap is taken.
+        If the first symbol did not occur up to this point,
+        no number is shown for this line.
+        By default the first symbol of a sequence has the position 1,
+        but this behavior can be changed using the `number_functions`
+        parameter.
+    number_size : float, optional
+        The font size of the position numbers
+    number_functions : list of [(None or Callable(int -> int)], optional
+        By default the position of the first symbol in a sequence is 1,
+        i.e. the sequence position is the sequence index incremented by
+        1.
+        The behavior can be changed with this parameter:
+        If supplied, the length of the list must match the number of
+        sequences in the alignment.
+        Every entry is a function that maps a sequence index (*int*) to
+        a sequence position (*int*) for the respective sequence.
+        A `None` entry means, that the default numbering is applied
+        for the sequence.
+    labels : list of str, optional
+        The sequence labels.
+        Must be the same size and order as the sequences in the
+        alignment.
+    label_size : float, optional
+        Font size of the labels
+    show_line_position : bool, optional
+        If true the position within a line is plotted below the
+        alignment.
+    spacing : float, optional
+        The spacing between the alignment lines. 1.0 means that the size
+        is equal to the size of a symbol box.
+    color : tuple or str, optional
+        A *Matplotlib* compatible color.
+    cmap : Colormap or str, optional
+        The boxes (or symbols, if `color_symbols` is set) are
+        colored based on the normalized intensity value on the
+        given *Matplotlib* Colormap.
+    fl_score : numpy.ndarray 
+        The ndarray to map fluorescence values to score residues.
+        By default the normalized score is 1 for maximun recognition
+        and 0 for non-recognition(no color).
+    color_symbols : bool, optional
+        If true, the symbols themselves are colored.
+        If false, the symbols are black, and the boxes behind the
+        symbols are colored.
+    symbol_size : float, optional
+        Font size of the sequence symbols.
+    symbol_param : dict
+        Additional parameters that is given to the
+        :class:`matplotlib.Text` instance of each symbol.
+    symbol_spacing : int, optional
+        А space is placed between each number of elements desired
+        by variable.
+    Notes
+    -----
+    A '*' represents a sequence match on the alignment 
+    A '-' represents a sequence gap on the alignment 
+
     """
     symbol_plotter = ArrayPlotter(
-        axes, fl_score= fl_score, font_size=symbol_size, font_param=symbol_param,
-        color_symbols=color_symbols
+        axes, fl_score = fl_score, font_size = symbol_size, font_param = symbol_param,
+        color_symbols = color_symbols
     )
     
     if color is not None or cmap is not None:
