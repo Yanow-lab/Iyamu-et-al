@@ -153,7 +153,7 @@ def data_transform(dataframe, method = 'linear', threshold=0):
 
         
         
-def gapped_seq(dataframe, seq_trace, overlap_step=1):
+def gapped_seq(dataframe, seq_trace, p_len, overlap_step=1):
     
     '''
     Build a list of tuples:('aa_symbol': signal_plot). List elements match 
@@ -172,7 +172,8 @@ def gapped_seq(dataframe, seq_trace, overlap_step=1):
     overlap_step: int. Optional
         The number of residues skipped between two consecutive overlaping peptides (Default: 1).
         example: an array of 20-mer peptides with 19 residue overlap, has overlap_step= 1. 
-
+    p_len: int. 
+        Number of residues of each peptide on the array. 
     Returns
     ----------
     gapped_seq: list of tuples
@@ -187,7 +188,8 @@ def gapped_seq(dataframe, seq_trace, overlap_step=1):
     df = dataframe
     step = overlap_step        
     gapped = list(zip(df.s_res , df.signal_plot)) 
-    lk1 =  df["s_res"].values.tolist()  
+    lk1 =  df["s_res"].values.tolist()
+    plen = p_len
     
     if step == 1:
         x, b = 0, 0
@@ -195,7 +197,7 @@ def gapped_seq(dataframe, seq_trace, overlap_step=1):
         p = 0                      # peptide counter
         for b in range(len(lk1)):
             for a in template[x:]:
-                if c < 19 : 
+                if c < plen-1 : 
                     if a==None:
                         gapped.insert(x,(template[x],0)) 
                         x=x+1
@@ -223,7 +225,7 @@ def gapped_seq(dataframe, seq_trace, overlap_step=1):
         p=0 
         for b in range(len(lk1)):
             for a in template[x:]:
-                if c < 19 and p==0:            
+                if c < plen-1 and p==0:            
                     if a==None:
                         gapped.insert(x,(template[x],0)) 
                         x=x+1
