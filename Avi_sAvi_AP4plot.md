@@ -106,157 +106,73 @@ import numpy as np
 ```
 
 ```python
-dfa = pd.DataFrame()
-dfa['seq'] = pep_s0
-dfa['score'] = np.random.uniform(0.1,1.0, dfa.shape[0])
+a, m = 0.5, 2. 
+np.random.seed(42)
 ```
 
 ```python
-dfb = pd.DataFrame()
-dfb['seq'] = pep_s1
-dfb['score'] = np.random.uniform(0.1,1.0, dfb.shape[0])
+#s=(np.random.pareto(a, 10) + 1) * m
+#s
 ```
 
 ```python
-dfa
+ag1_scan = pd.DataFrame()
+ag1_scan['Seq'] = pep_s0
+ag1_scan['r1'] = (np.random.pareto(a, ag1_scan.shape[0]) + 1) * m
+ag1_scan['r2'] = (np.random.pareto(a, ag1_scan.shape[0]) + 1.1) * m
+```
+
+```python
+score_res = ag1_scan['Seq'].str[-1]
+ag1_scan['s_res'] = score_res
+```
+
+```python
+ag2_scan = pd.DataFrame()
+ag2_scan['Seq'] = pep_s1
+ag2_scan['r1'] = (np.random.pareto(a, ag2_scan.shape[0]) + 1) * m
+ag2_scan['r2'] = (np.random.pareto(a, ag2_scan.shape[0]) + 1.1) * m
+```
+
+```python
+score_res = ag2_scan['Seq'].str[-1]
+ag2_scan['s_res'] = score_res
+```
+
+```python
+
 ```
 
 ## Process array data
 
 ```python
-score_res = dfa['seq'].str[-1]
-dfa['s_res'] = score_res
+import SignalArray as sa
 ```
 
 ```python
-score_res = dfb['seq'].str[-1]
-dfb['s_res'] = score_res
+dfa = sa.compute_params(ag1_scan, combine = 'max', flag_noisy = True)
+dfb = sa.compute_params(ag2_scan, combine = 'max', flag_noisy = True)
 ```
 
 ```python
-dfb.head()
+sa.data_describe(dfa) # Define a threshold 
 ```
 
 ```python
-dfb.head()
+sa.data_transform(dfa, method ='logb10', threshold = 0)
+sa.data_transform(dfb, method ='logb10', threshold = 0)
 ```
 
-```python
-gapd_s1 = list(zip(dfa.s_res , dfa.score)) # convert the df columns into a list of tuples for Seq_0
-lk1 = dfa["s_res"].values.tolist()     # convert the df column into a list of keys for Seq_0
-```
+## Convert a list of score residues from the epitope </br>scan data into a aligment-like gapped sequences 
 
 ```python
-gapd_s2 = list(zip(dfb.s_res , dfb.score)) 
-lk2 = dfb["s_res"].values.tolist()
-```
-
-```python
-len(A.trace)
+gapd_s1 = sa.gapped_seq(dfa, traceA,10, 1)
+gapd_s2 = sa.gapped_seq(dfb, traceB,10, 2) # here the overlap step is 2 
+                                        # (peptide = 20-mer with 18 overlap)
 ```
 
 ```python
 print(A)
-```
-
-```python
-######    Seq_0 create a list of tuples same length as trace[seq] #######
-x=0
-b=0
-c=0 #cyclic counter up to the peptide length :10
-p=0 #peptide counter
-for b in range(len(lk1)):
-    for a in traceA[x:]:
-        if c < 9 : #and x < (len(traceA)-1):
-            if a==None:
-                gapd_s1.insert(x,(traceA[x],0)) 
-                x=x+1
-            elif a != lk1[b] :
-                gapd_s1.insert(x,(traceA[x],0))         
-                x=x+1
-                c=c+1
-            elif p==0:
-                gapd_s1.insert(x,(traceA[x],0)) 
-                x=x+1
-                c=c+1 
-            else:
-                x=x+1
-                c=c+1 
-                break
-        else:
-            c = 0 # reset the counter        
-            p=p+1
-            x=x+1
-            break
-
-if len(gapd_s1) < len(traceA) and traceA[len(gapd_s1)+1]== None:
-    gapd_s1_tail=[]
-    for n in range(len(traceA)-len(gapd_s1)):
-        gapd_s1_tail.append(('None', 0))
-    gapd_s1 = gapd_s1+gapd_s1_tail
-
-
-```
-
-```python
-####     Seq_1 create a list of tuples same length as trace[seq]  #####
-x=0
-b=0
-c=0 #cyclic counter up to the peptide length :10
-p=0 #peptide counter
-for b in range(len(lk2)):
-    for a in traceB[x:]:
-        if c < 9 and p==0:            
-            if a==None :
-                gapd_s2.insert(x,(traceB[x],0)) 
-                x=x+1
-            else:
-                gapd_s2.insert(x,(traceB[x],0))         
-                x=x+1
-                c=c+1
-        elif p==0 :
-            c = 0 # reset the counter        
-            p=p+1
-            x=x+1
-            break
-        if p!=0: 
-            if a==None and c == 0:
-                gapd_s2.insert(x,(traceB[x],0)) 
-                x=x+1
-            elif c % 2 == 0 : 
-                if a==None:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    x=x+1
-                else:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    x=x+1
-                    c=c+1
-            elif c % 2 != 0 : 
-                if a==None:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    x=x+1
-                elif a != lk2[b]:
-                    gapd_s2.insert(x,(traceB[x],0))         
-                    x=x+1
-                    c=c+1
-                else:        
-                    x=x+1
-                    c=c+1
-                    break
-         
-
-
-        
-        
-        
-        
-        
-if len(gapd_s2) < len(traceB) and traceB[len(gapd_s2)+1] == None:
-    gapd_s2_tail=[]
-    for n in range(len(traceB)-len(gapd_s2)):
-        gapd_s2_tail.append(('None', 0)) 
-
-    gapd_s2 = gapd_s2+gapd_s2_tail               
 ```
 
 ## Disparo de control
@@ -265,68 +181,37 @@ if len(gapd_s2) < len(traceB) and traceB[len(gapd_s2)+1] == None:
 len(gapd_s1) == len(gapd_s2)
 ```
 
-##
+## Create a signal_map (ndarray)
 
 ```python
-gapd_s1[:10]
-```
-
-```python
-import numpy as np
-```
-
-```python
-#alignment.trace.shape[0] = seq_len
-fl_score=np.zeros((len(gapd_s1),2))
-for v1 in range(len(gapd_s1)):
-    fl_score[v1,0]=gapd_s1[v1][1]    
-    fl_score[v1,1]=gapd_s2[v1][1]
-```
-
-```python
-score = fl_score
-
-```
-
-```python
-def _get_signal( score, column_i, seq_i):
-    if fl_score is None:
-        signal = 0.01
-    else:
-        signal = fl_score[column_i, seq_i]
-    return signal
-```
-
-```python
-_get_signal(score, 3,0)
+score = sa.signal_map(gapd_s1, gapd_s2,)
 ```
 
 ## Plot
 
 ```python
-symbol_plotter = ap.ArrayPlotter(ax, score)
+import ArrayTools as at
+import matplotlib as mpl
 ```
 
 ```python
-import ArrayPlotter as ap
-
-""" my module ArrayPlotter2 has a class and a function
-    that uses objects from that class
-"""
 fig = plt.figure(figsize=(8, 2.5))
-ax = fig.add_subplot(111)
-ap.plot_alignment_array(ax, alignments[0], fl_score= score,
+ax1 = fig.add_subplot(111)
+at.plot_alignment_array(ax1, alignments[0], fl_score= score,
      labels=["Avi", "sAvi"],show_numbers=True,
     symbols_per_line= 50, show_line_position=True) 
+# add a colorbar
+ax2 = fig.add_axes([0.1,-0.15,0.8,0.1])
+ax2.set_frame_on(False)
+plotter = at.ArrayPlotter(ax2, score)
+cmp= plotter._cmap
+cmap = cmp
+norm = mpl.colors.LogNorm(vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
 
-fig.colorbar(symbol_plotter,ax=ax)
-fig.tight_layout()
-
+fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+             cax=ax2, orientation='horizontal', label='Some Units')
+#fig.tight_layout()
 plt.show()
-```
-
-```python
-
 ```
 
 ```python
@@ -334,157 +219,9 @@ stop
 ```
 
 ```python
-# DEBUG_Seq_0 create a list of tuples same length as trace[seq]
-x=0
-b=0
-c=0 #cyclic counter up to the peptide length :10
-p=0 #peptide counter
-for b in range(len(lk1)):
-    print('b-',b)
-    for a in traceA[x:]:
-        print('entry a-',a)
-        if c < 9 : #and x < (len(traceA)-1):
-            if a==None:
-                gapd_s1.insert(x,(traceA[x],0)) 
-                print('a==',a,a==None)
-                print('x',x)
-                print('<-insert01')
-                x=x+1
-            elif a != lk1[b] :
-                gapd_s1.insert(x,(traceA[x],0))         
-                print('a',a,'b',b)                   
-                print('x',x)
-                print(a != lk1[b], '<-insert02')
-                x=x+1
-                c=c+1
-                print('c',c)
-            elif p==0:
-                gapd_s1.insert(x,(traceA[x],0)) 
-                print('a',a,'b',b)                   
-                print('x',x)
-                print('<-insert03')
-                x=x+1
-                c=c+1 
-                print('c',c)
-            else:
-                print('a',a,'b',b)                   
-                print('x',x)
-                print(a != lk1[b],'<-val-0')
-                x=x+1
-                c=c+1 
-                print('c',c)
-                break
-        else:
-            c = 0 # reset the counter        
-            print('a',a,'b',b)                   
-            print('x',x)
-            print(a != lk1[b],'<-val-2')
-            p=p+1
-            print('P',p)
-            x=x+1
-                #c=c+1
-            break
-
-if len(gapd_s1) < len(traceA) and traceA[len(gapd_s1)+1]== None:
-    gapd_s1_tail=[]
-    for n in range(len(traceA)-len(gapd_s1)):
-        gapd_s1_tail.append(('None', 0))
-    gapd_s1 = gapd_s1+gapd_s1_tail
-
 
 ```
 
 ```python
-#  DEBUG_2_Seq_1 (step:2)create a list of tuples same length as trace[seq]
-x=0
-b=0
-c=0 #cyclic counter up to the peptide length :10
-p=0 #peptide counter
-for b in range(len(lk2)):
-    print('b-',b)
-    for a in traceB[x:]:
-        print('entry a-',a) 
-        if c < 9 and p==0:            
-            if a==None :
-                gapd_s2.insert(x,(traceB[x],0)) 
-                print('a==',a,a==None)
-                print('x',x)
-                print('<-insert01')
-                x=x+1
-            else:
-                gapd_s2.insert(x,(traceB[x],0))         
-                print('a',a,'b',b)                   
-                print('x',x)
-                print(a != lk2[b], '<-insert02')
-                x=x+1
-                c=c+1
-                print('c',c)
-        elif p==0 :
-            c = 0 # reset the counter        
-            print('a',a,'b',b)                   
-            print('x',x)
-            print(a != lk2[b],'<-val-1')
-            p=p+1
-            print('P',p)
-            x=x+1
-                #c=c+1
-            break
-        if p!=0: 
-            if a==None and c == 0:
-                gapd_s2.insert(x,(traceB[x],0)) 
-                print('a==',a,a==None)
-                print('x',x)
-                print('<-insert03')
-                x=x+1
-            elif c % 2 == 0 : 
-                if a==None:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    print('a',a)
-                    print('x',x)
-                    print('<-insert04')
-                    x=x+1
-                else:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    print('a',a)
-                    print('x',x)
-                    print('<-insert05')
-                    x=x+1
-                    c=c+1
-            elif c % 2 != 0 : 
-                if a==None:
-                    gapd_s2.insert(x,(traceB[x],0)) 
-                    print('a==',a,a==None)
-                    print('x',x)
-                    print('<-insert06')
-                    x=x+1
-                elif a != lk2[b]:
-                    gapd_s2.insert(x,(traceB[x],0))         
-                    print('a',a,'b',b)                   
-                    print('x',x)
-                    print(a != lk2[b], '<-insert07')
-                    x=x+1
-                    c=c+1
-                    print('c',c)
-                else:        
-                    print('a',a,'b',b)                   
-                    print('x',x)
-                    print(a != lk2[b], '<-insert07')
-                    x=x+1
-                    c=c+1
-                    print('c',c)
-                    break
-         
 
-
-        
-        
-        
-        
-        
-if len(gapd_s2) < len(traceB) and traceB[len(gapd_s2)+1] == None:
-    gapd_s2_tail=[]
-    for n in range(len(traceB)-len(gapd_s2)):
-        gapd_s2_tail.append(('None', 0)) 
-
-gapd_s2 = gapd_s2+gapd_s2_tail               
 ```
