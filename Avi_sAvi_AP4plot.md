@@ -14,7 +14,6 @@ jupyter:
 ---
 
 ```python tags=[]
-import matplotlib.pyplot as plt
 import biotite.sequence as seq
 import biotite.sequence.align as align
 import biotite.sequence.graphics as graphics
@@ -40,13 +39,19 @@ for name, sequence in fasta_file.items():
 matrix = align.SubstitutionMatrix.std_protein_matrix()
 # Perform pairwise sequence alignment with affine gap penalty
 # Terminal gaps are not penalized
-alignments = align.align_optimal(avidin_seq, streptavidin_seq, matrix, # returns a list of alig
-                                 gap_penalty=(-10, -1), local=False, terminal_penalty=False)
+alignments = align.align_optimal(avidin_seq, streptavidin_seq, matrix, # returns list of ali
+                    gap_penalty=(-10, -1), local=False, terminal_penalty=False)
 ```
 
 ```python
 A = alignments[0]
 ```
+
+```python
+print(A)
+```
+
+#### Get the of symbols the aligned sequences
 
 ```python
 traceA = align.get_symbols(A)[0]
@@ -101,25 +106,22 @@ with open("Avi-sAvi.txt", 'r+') as f:
 len(pep_s1)
 ```
 
+#### Array data for MAb reacognition follows a long-tailed distrubution. Shape: pareto
+
 ```python
 import numpy as np
 ```
 
 ```python
 a, m = 0.5, 2. 
-np.random.seed(42)
-```
-
-```python
-#s=(np.random.pareto(a, 10) + 1) * m
-#s
+np.random.seed(42) # seed the randomizer method to get reproducible results
 ```
 
 ```python
 ag1_scan = pd.DataFrame()
 ag1_scan['Seq'] = pep_s0
 ag1_scan['r1'] = (np.random.pareto(a, ag1_scan.shape[0]) + 1) * m
-ag1_scan['r2'] = (np.random.pareto(a, ag1_scan.shape[0]) + 1.1) * m
+ag1_scan['r2'] = (np.random.pareto(a, ag1_scan.shape[0]) + 1.1) * m # replicate_variability
 ```
 
 ```python
@@ -131,16 +133,12 @@ ag1_scan['s_res'] = score_res
 ag2_scan = pd.DataFrame()
 ag2_scan['Seq'] = pep_s1
 ag2_scan['r1'] = (np.random.pareto(a, ag2_scan.shape[0]) + 1) * m
-ag2_scan['r2'] = (np.random.pareto(a, ag2_scan.shape[0]) + 1.1) * m
+ag2_scan['r2'] = (np.random.pareto(a, ag2_scan.shape[0]) + 1.1) * m # replicate_variability
 ```
 
 ```python
 score_res = ag2_scan['Seq'].str[-1]
 ag2_scan['s_res'] = score_res
-```
-
-```python
-
 ```
 
 ## Process array data
@@ -159,8 +157,8 @@ sa.data_describe(dfa) # Define a threshold
 ```
 
 ```python
-sa.data_transform(dfa, method ='logb10', threshold = 0)
-sa.data_transform(dfb, method ='logb10', threshold = 0)
+sa.data_transform(dfa, method ='linear', threshold = 0)
+sa.data_transform(dfb, method ='linear', threshold = 0)
 ```
 
 ## Convert a list of score residues from the epitope </br>scan data into a aligment-like gapped sequences 
@@ -169,10 +167,6 @@ sa.data_transform(dfb, method ='logb10', threshold = 0)
 gapd_s1 = sa.gapped_seq(dfa, traceA,10, 1)
 gapd_s2 = sa.gapped_seq(dfb, traceB,10, 2) # here the overlap step is 2 
                                         # (peptide = 20-mer with 18 overlap)
-```
-
-```python
-print(A)
 ```
 
 ## Disparo de control
@@ -191,7 +185,12 @@ score = sa.signal_map(gapd_s1, gapd_s2,)
 
 ```python
 import ArrayTools as at
+import matplotlib.pyplot as plt
 import matplotlib as mpl
+```
+
+```python
+stop
 ```
 
 ```python
@@ -200,26 +199,56 @@ ax1 = fig.add_subplot(111)
 at.plot_alignment_array(ax1, alignments[0], fl_score= score,
      labels=["Avi", "sAvi"],show_numbers=True,
     symbols_per_line= 50, show_line_position=True) 
-# add a colorbar
+# add a 2nd axes and a colorbar
 ax2 = fig.add_axes([0.1,-0.15,0.8,0.1])
 ax2.set_frame_on(False)
 plotter = at.ArrayPlotter(ax2, score)
-cmp= plotter._cmap
-cmap = cmp
+cmp = plotter._cmap
+vmiA = dfa['combined_signal'].min()
+vmiB = dfb['combined_signal'].min()
+vmxA = dfa['combined_signal'].max()
+vmxB = dfb['combined_signal'].max()
 norm = mpl.colors.LogNorm(vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
-             cax=ax2, orientation='horizontal', label='Some Units')
+fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmp),
+             cax=ax2, orientation='horizontal', label='signal intensity')
 #fig.tight_layout()
 plt.show()
 ```
 
 ```python
-stop
-```
+fig = plt.figure(figsize=(8, 2.5))
+ax1 = fig.add_subplot(111)
+at.plot_alignment_array(ax1, alignments[0], fl_score= score,
+     labels=["Avi", "sAvi"],show_numbers=True,
+    symbols_per_line= 50, show_line_position=True) 
+# add a 2nd axes and a colorbar
+ax2 = fig.add_axes([0.1,-0.15,0.8,0.1])
+ax2.set_frame_on(False)
 
-```python
+cmp = at.get_cmap(ax2, score)
 
+# vmiA = dfa['combined_signal'].min()
+# vmiB = dfb['combined_signal'].min()
+# vmxA = dfa['combined_signal'].max()
+# vmxB = dfb['combined_signal'].max()
+
+# norm = mpl.colors.PowerNorm(gamma= 1.0, vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
+# def fmt(x, pos):
+#     a, b = '{:.1e}'.format(x).split('e')
+#     b = int(b)
+#     return r'${}\cdot10^{{{}}}$'.format(a, b)
+
+# cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmp),
+#              cax=ax2, orientation='horizontal', label='signal intensity',
+#              format = mpl.ticker.FuncFormatter(fmt))
+cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'linear', 
+                       orient = 'horizontal', title = 'signal intensity')
+
+labls = cbar.ax.get_xticklabels()
+plt.setp(labls, rotation=45, horizontalalignment='center')
+
+plt.show()
 ```
 
 ```python
