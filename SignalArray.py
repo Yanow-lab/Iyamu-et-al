@@ -1,4 +1,4 @@
-#__name__ = "array..."
+__name__ = "SignalArray"
 __author__ = "Daniel Ferrer-Vinals"
 __all__ = ["read_scan", "compute_params", "data_describe", "data_transform", "gapped_sec", "signal_map"]
 
@@ -117,7 +117,7 @@ def data_transform(dataframe, method = 'linear', threshold=0):
     dataframe : pandas.DataFrame 
         A Pandas.DataFrame object that contains the peptide array scan data
     method: str. Optional
-        One of: 'linear', 'sqrt', 'cubic', 'logb2', 'logb10' (Default: linear)
+        One of: 'linear', 'sqrt', 'cubic', 'log' (Default: 'linear')
     signal_threshold: int. Optional
         Set threshold to a 'value', if a spot's signal value is < threshold, then the spot signal 
         is replaced by 0. Default: threshold = 0 (no threshold)        
@@ -140,15 +140,11 @@ def data_transform(dataframe, method = 'linear', threshold=0):
         
     elif method == 'cubic': 
         df['cubic'] = df.apply(lambda x: np.cbrt(max(0, x.combined_signal-t)), axis=1)
-        df['signal_plot'] = df.apply(lambda x: x.cubic/df['cubic'].max(), axis=1)
+        df['signal_plot'] = df.apply(lambda x: x.cubic/df['cubic'].max(), axis=1)     
         
-    elif method == 'logb2': 
-        df['logb2'] = df.apply(lambda x: np.log2(max(1, x.combined_signal-t)), axis=1)
-        df['signal_plot'] = df.apply(lambda x: x.logb2/df['logb2'].max(), axis=1)      
-        
-    elif method == 'logb10': 
-        df['logb10'] = df.apply(lambda x: np.log10(max(1, x.combined_signal-t)), axis=1)
-        df['signal_plot'] = df.apply(lambda x: x.logb10/df['logb10'].max(), axis=1)  
+    elif method == 'log': 
+        df['log'] = df.apply(lambda x: np.log10(max(1, x.combined_signal-t)), axis=1)
+        df['signal_plot'] = df.apply(lambda x: x.logb10/df['log'].max(), axis=1)  
     
 
         
