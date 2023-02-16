@@ -157,8 +157,8 @@ sa.data_describe(dfa) # Define a threshold
 ```
 
 ```python
-sa.data_transform(dfa, method ='linear', threshold = 0)
-sa.data_transform(dfb, method ='linear', threshold = 0)
+sa.data_transform(dfa, method ='cubic', threshold = 0)
+sa.data_transform(dfb, method ='cubic', threshold = 0)
 ```
 
 ## Convert a list of score residues from the epitope </br>scan data into a aligment-like gapped sequences 
@@ -190,60 +190,21 @@ import matplotlib as mpl
 ```
 
 ```python
-stop
-```
-
-```python
 fig = plt.figure(figsize=(8, 2.5))
 ax1 = fig.add_subplot(111)
 at.plot_alignment_array(ax1, alignments[0], fl_score= score,
      labels=["Avi", "sAvi"],show_numbers=True,
     symbols_per_line= 50, show_line_position=True) 
+
 # add a 2nd axes and a colorbar
+
 ax2 = fig.add_axes([0.1,-0.15,0.8,0.1])
 ax2.set_frame_on(False)
-plotter = at.ArrayPlotter(ax2, score)
-cmp = plotter._cmap
-vmiA = dfa['combined_signal'].min()
-vmiB = dfb['combined_signal'].min()
-vmxA = dfa['combined_signal'].max()
-vmxB = dfb['combined_signal'].max()
-norm = mpl.colors.LogNorm(vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
-
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmp),
-             cax=ax2, orientation='horizontal', label='signal intensity')
-#fig.tight_layout()
-plt.show()
-```
-
-```python
-fig = plt.figure(figsize=(8, 2.5))
-ax1 = fig.add_subplot(111)
-at.plot_alignment_array(ax1, alignments[0], fl_score= score,
-     labels=["Avi", "sAvi"],show_numbers=True,
-    symbols_per_line= 50, show_line_position=True) 
-# add a 2nd axes and a colorbar
-ax2 = fig.add_axes([0.1,-0.15,0.8,0.1])
-ax2.set_frame_on(False)
-
 cmp = at.get_cmap(ax2, score)
-
-# vmiA = dfa['combined_signal'].min()
-# vmiB = dfb['combined_signal'].min()
-# vmxA = dfa['combined_signal'].max()
-# vmxB = dfb['combined_signal'].max()
-
-# norm = mpl.colors.PowerNorm(gamma= 1.0, vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
-# def fmt(x, pos):
-#     a, b = '{:.1e}'.format(x).split('e')
-#     b = int(b)
-#     return r'${}\cdot10^{{{}}}$'.format(a, b)
-
-# cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmp),
-#              cax=ax2, orientation='horizontal', label='signal intensity',
-#              format = mpl.ticker.FuncFormatter(fmt))
-cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'linear', 
+cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'cubic', 
                        orient = 'horizontal', title = 'signal intensity')
+
+# to improve readability, tilt ticklabels on the colorbar
 
 labls = cbar.ax.get_xticklabels()
 plt.setp(labls, rotation=45, horizontalalignment='center')
