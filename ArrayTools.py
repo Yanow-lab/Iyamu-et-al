@@ -1,6 +1,6 @@
-#__name__ = "array..."
+__name__ = "ArrayTools"
 __author__ = "Daniel Ferrer-Vinals"
-__all__ = ["ArrayPlotter", "plot_alignment_array" ]
+__all__ = ["ArrayPlotter", "plot_alignment_array", "get_cmap", "get_colorbar" ]
 
 
 import numpy as np
@@ -9,7 +9,7 @@ from biotite.visualize import colors
 from biotite.sequence.graphics.colorschemes import get_color_scheme
 
 class ArrayPlotter(LetterPlotter):
-    """
+    '''
     This SymbolPlotter maps data from epitope scannings on arrays 
     of overlapping peptides, onto proteins represented as sequencece aligment.
     Symbols are visualized as characters on a colored background box. The 
@@ -37,7 +37,7 @@ class ArrayPlotter(LetterPlotter):
         Additional parameters that is given to the
         matplotlib.Text instance of each symbol.
     
-    """
+    '''
     def __init__(self, axes, fl_score, color_symbols=False,
                  font_size=None, font_param=None):
 
@@ -147,7 +147,7 @@ class ArrayPlotter(LetterPlotter):
         else:
             # From white to color
             cmap_val = np.stack(
-                [np.interp(np.linspace(0, 1, 10), [0, 1], [1, color[i]])
+                [np.interp(np.linspace(0, 1, 100), [0, 1], [1, color[i]])
                     for i in range(len(color))]
             ).transpose()
         return ListedColormap(cmap_val)        
@@ -165,7 +165,7 @@ def plot_alignment_array(axes, alignment, symbols_per_line=50,
                                     color_symbols=False, symbol_spacing=None,
                                     symbol_size=None, symbol_param=None):
 
-    """
+    '''
     Plots a pairwise sequence alignment using an ArrayPloter instance.
     Higlights sequence recognition regions at the positions of the respective 
     score residue per alignment column.
@@ -244,7 +244,7 @@ def plot_alignment_array(axes, alignment, symbols_per_line=50,
     A '*' represents a sequence match on the alignment 
     A '-' represents a sequence gap on the alignment 
 
-    """
+    '''
     symbol_plotter = ArrayPlotter(
         axes, fl_score = fl_score, font_size = symbol_size, font_param = symbol_param,
         color_symbols = color_symbols
@@ -263,3 +263,107 @@ def plot_alignment_array(axes, alignment, symbols_per_line=50,
         show_line_position=show_line_position,
         spacing=spacing, symbol_spacing=symbol_spacing
     )  
+    
+    
+def get_cmap(axes, signal_map):
+    '''
+    Access the Colormap atribute of an ArrayPlotter instantiated: 
+    ArrayPlotter(axes, signal_map). 
+    ----------
+    axes: Axes
+        A Matplotlib axes to plot the Colormap
+    signal_map: numpy.ndarray
+        A numpy.ndarray that maps peptide signal score to the corresponding 
+        position of the score residue on the sequence alignment
+  
+    Returns
+    ----------
+    A matplotlib.colors.Colormap object, used to convert data from the signal_map
+    to the RGBA colors 
+    '''
+    ax = axes
+    smap = signal_map
+    plotter = ArrayPlotter(ax, smap)
+    return plotter._cmap
+
+
+def get_colorbar(axes, array1, array2, colormap, transform ='linear',  orient =None,
+                title=None):
+    '''
+    Generate the a Colorbar object according to the specified scaling of the data
+    ----------
+    axes: Axes
+        A Matplotlib axes were the Colorbar will reside
+    array1: pandas.DataFrame
+        A dataframe that contains the peptide array scan data(antigen-1) with the desired
+        trasnfomation method
+    array2: pandas.DataFrame
+        A dataframe that contains the peptide array scan data(antigen-2) with the desired
+        trasnfomation method
+    transform: str. Optional
+        One of: 'linear', 'sqrt', 'cubic', 'log'(Default: 'linear').Instantiate subclasses
+        of matplotlib.cm.ScalarMappable to scale the colors on the desired transformation
+    orient: 'vertical' or 'horizontal'
+        Orientation of the Colorbar
+    title: str
+        The label on the Colorbar's long axis
+    
+    Returns
+    ----------
+    A matplotlib.Colorbar instance. Draw a colorbar in an existing axes
+    '''
+    import matplotlib as mpl
+    
+    df1 = array1
+    df2 = array2
+    cmp = colormap
+    method = transform
+    ax = axes
+    orientation = orient
+    label = title
+    
+    # custom Formtatter for tick labels on the colorbar
+    def fmt(x, pos):
+        a, b = '{:.1e}'.format(x).split('e')
+        b = int(b)
+        return r'${}\cdot10^{{{}}}$'.format(a, b)
+    
+    if method == 'linear':
+        vmiA = df1['combined_signal'].min()
+        vmiB = df2['combined_signal'].min()
+        vmxA = df1['combined_signal'].max()
+        vmxB = df2['combined_signal'].max()
+        # Colormap normalization:
+        norm = mpl.colors.PowerNorm(gamma = 1.0, 
+                                    vmin = min(vmiA,vmiB), vmax = max(vmxA,vmxB))
+
+    elif method == 'sqrt':
+        vmiA = df1['combined_signal'].min()
+        vmiB = df2['combined_signal'].min()
+        vmxA = df1['combined_signal'].max()
+        vmxB = df2['combined_signal'].max()
+        # Colormap normalization:
+        norm = mpl.colors.PowerNorm(gamma = 0.5, 
+                                    vmin = min(vmiA,vmiB), vmax = max(vmxA,vmxB))
+    elif method == 'cubic':
+        vmiA = df1['combined_signal'].min()
+        vmiB = df2['combined_signal'].min()
+        vmxA = df1['combined_signal'].max()
+        vmxB = df2['combined_signal'].max()
+        # Colormap normalization:
+        norm = mpl.colors.PowerNorm(gamma = 0.33, 
+                                    vmin = min(vmiA,vmiB), vmax = max(vmxA,vmxB))
+    elif method == 'log':
+        vmiA = df1['combined_signal'].min()
+        vmiB = df2['combined_signal'].min()
+        vmxA = df1['combined_signal'].max()
+        vmxB = df2['combined_signal'].max()
+        # Colormap normalization:
+        norm = mpl.colors.LogNorm(vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
+        
+    fig = mpl.pyplot.figure()        
+    return fig.colorbar(mpl.cm.ScalarMappable(norm = norm, cmap = cmp),
+                 cax = ax, orientation = orientation, label = label,
+                 format = mpl.ticker.FuncFormatter(fmt))
+    
+    
