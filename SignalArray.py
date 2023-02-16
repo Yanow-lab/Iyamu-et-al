@@ -144,7 +144,7 @@ def data_transform(dataframe, method = 'linear', threshold=0):
         
     elif method == 'log': 
         df['log'] = df.apply(lambda x: np.log10(max(1, x.combined_signal-t)), axis=1)
-        df['signal_plot'] = df.apply(lambda x: x.logb10/df['log'].max(), axis=1)  
+        df['signal_plot'] = df.apply(lambda x: x.log/df['log'].max(), axis=1)  
     
 
         

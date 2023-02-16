@@ -359,7 +359,8 @@ def get_colorbar(axes, array1, array2, colormap, transform ='linear',  orient =N
         vmxA = df1['combined_signal'].max()
         vmxB = df2['combined_signal'].max()
         # Colormap normalization:
-        norm = mpl.colors.LogNorm(vmin=min(vmiA,vmiB), vmax=max(vmxA,vmxB))
+        norm = mpl.colors.LogNorm(vmin = 1 if vmiA==0 or vmiB==0 else min(vmiA,vmiB),
+                                  vmax = max(vmxA,vmxB))
         
     fig = mpl.pyplot.figure()        
     return fig.colorbar(mpl.cm.ScalarMappable(norm = norm, cmap = cmp),

@@ -78,12 +78,12 @@ sa.data_describe(dfa) # Define a threshold
 ```
 
 ```python
-sa.data_transform(dfa, method ='cubic', threshold = 0)
-sa.data_transform(dfb, method ='cubic', threshold = 0)
+sa.data_transform(dfa, method ='log', threshold = 0)
+sa.data_transform(dfb, method ='log', threshold = 0)
 ```
 
 ```python
-help(sa.data_transform)
+#help(sa.data_transform)
 ```
 
 ## Convert a list of score residues from the epitope </br>scan data into a aligment-like gapped sequences 
@@ -95,8 +95,8 @@ traceB = align.get_symbols(A)[1]
 ```
 
 ```python
-gapd_s1 = sa.gapped_seq(dfa, traceA,20, 1)
-gapd_s2 = sa.gapped_seq(dfb, traceB,20, 2) # overlap_step: 2 (pep = 20-mer with 18 overlap)
+gapd_s1 = sa.gapped_seq(dfa, traceA, 20, 1)
+gapd_s2 = sa.gapped_seq(dfb, traceB, 20, 2) # overlap_step: 2 (pep = 20-mer with 18 overlap)
 ```
 
 ## Checkpoint
@@ -132,7 +132,7 @@ at.plot_alignment_array(
 ax2 = fig.add_axes([0.1,-0.005, 0.8, 0.03])
 ax2.set_frame_on(False)
 cmp = at.get_cmap(ax2, score)
-cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'cubic', 
+cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'log', 
                        orient = 'horizontal', title = 'Fluorescence Intensity [AU]')
 
 # to improve readability, tilt ticklabels on the colorbar
@@ -144,13 +144,5 @@ plt.show()
 ```
 
 ```python
-#fig.savefig('log10_no_t.png', transparent=False, dpi=80, bbox_inches="tight")
-```
-
-```python
-
-```
-
-```python
-
+fig.savefig('log_cbar.png', transparent=False, dpi=80, bbox_inches="tight")
 ```
