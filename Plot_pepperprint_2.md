@@ -65,7 +65,7 @@ for f in filenames:
 ```
 
 ```python
-help(sa.read_scan)
+#help(sa.read_scan)
 ```
 
 ```python
@@ -78,8 +78,8 @@ sa.data_describe(dfa) # Define a threshold
 ```
 
 ```python
-sa.data_transform(dfa, method ='logb10', threshold = 0)
-sa.data_transform(dfb, method ='logb10', threshold = 0)
+sa.data_transform(dfa, method ='cubic', threshold = 0)
+sa.data_transform(dfb, method ='cubic', threshold = 0)
 ```
 
 ```python
@@ -95,8 +95,8 @@ traceB = align.get_symbols(A)[1]
 ```
 
 ```python
-gapd_s1 = sa.gapped_seq(dfa, traceA, 1)
-gapd_s2 = sa.gapped_seq(dfb, traceB, 2) # here the overlap step is 2 (peptide = 20-mer with 18 overlap)
+gapd_s1 = sa.gapped_seq(dfa, traceA,20, 1)
+gapd_s2 = sa.gapped_seq(dfb, traceB,20, 2) # overlap_step: 2 (pep = 20-mer with 18 overlap)
 ```
 
 ## Checkpoint
@@ -112,25 +112,33 @@ len(gapd_s1) == len(gapd_s2)
 score = sa.signal_map(gapd_s1, gapd_s2,)
 ```
 
-```python
-
-```
-
 ## Plot
 
 ```python
-import ArrayPlotter as ap
+import ArrayTools as at
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+```
 
-""" my module ArrayPlotter2 has a class and a function
-    that uses objects from that class
-"""
+```python
 fig = plt.figure(figsize=(20, 16))
 ax = fig.add_subplot(111)
-ap.plot_alignment_array(
+at.plot_alignment_array(
     ax, alignments[0], fl_score= score, labels=["FCR3", "NF54"],
     show_numbers=True,symbols_per_line= 120, show_line_position=True 
 )
-#fig.tight_layout()
+# add a 2nd axes and a colorbar
+
+ax2 = fig.add_axes([0.1,-0.005, 0.8, 0.03])
+ax2.set_frame_on(False)
+cmp = at.get_cmap(ax2, score)
+cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'cubic', 
+                       orient = 'horizontal', title = 'Fluorescence Intensity [AU]')
+
+# to improve readability, tilt ticklabels on the colorbar
+
+# labls = cbar.ax.get_xticklabels()
+# plt.setp(labls, rotation=45, horizontalalignment='center')
 
 plt.show()
 ```
