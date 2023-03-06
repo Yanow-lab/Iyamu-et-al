@@ -4,9 +4,12 @@ __all__ = ["ArrayPlotter", "plot_alignment_array", "get_cmap", "get_colorbar" ]
 
 
 import numpy as np
+import matplotlib.colors as mcolors
 from biotite.sequence.graphics import LetterPlotter
-from biotite.visualize import colors
 from biotite.sequence.graphics.colorschemes import get_color_scheme
+
+# Enable a matplotlib built-in color palette: 
+colors = mcolors.CSS4_COLORS
 
 class ArrayPlotter(LetterPlotter):
     '''
@@ -43,15 +46,12 @@ class ArrayPlotter(LetterPlotter):
 
         super().__init__(axes, color_symbols, font_size, font_param)
         if fl_score is not None:
-            self.fl_score = fl_score #later develop signalarray.fl_score()
+            self.fl_score = fl_score 
         else:
             self.fl_score = None        
-        # Default colormap
-        #self._cmap = _cmap
-        self._cmap = self._generate_colormap(colors["dimorange"],
+        self._cmap = self._generate_colormap(colors['red'],
                                              self._color_symbols) # default= color_symbols: False
-        
-     
+             
                              
     def get_color(self, alignment, column_i, seq_i):
         '''
@@ -79,7 +79,7 @@ class ArrayPlotter(LetterPlotter):
             spot_signal = 0
         else:
             spot_signal = self._get_signal(self.fl_score, column_i, seq_i)
-           # spot_signal = 0.2  # from 0 to 0.9 it gives shades of orange
+           # spot_signal = 0.2  # from 0 to 0.9 it gives shades of color
         return self._cmap(spot_signal)
 
 

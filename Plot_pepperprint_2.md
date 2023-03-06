@@ -22,7 +22,7 @@ import biotite.sequence.io.fasta as fasta
 ```
 
 ```python
-fasta_file = fasta.FastaFile.read('Seq.txt')
+fasta_file = fasta.FastaFile.read('seq.txt')
 ```
 
 ```python
@@ -40,7 +40,8 @@ matrix = align.SubstitutionMatrix.std_protein_matrix()
 # Perform pairwise sequence alignment with affine gap penalty
 # Terminal gaps are not penalized
 alignments = align.align_optimal(FCR3_seq, NF54_seq, matrix,
-                                 gap_penalty=(-10, -1), terminal_penalty=False)
+                                 gap_penalty = (-10, -1), 
+                                 terminal_penalty = False)
 ```
 
 ## Load epitope scan data
@@ -78,8 +79,8 @@ sa.data_describe(dfa) # Define a threshold
 ```
 
 ```python
-sa.data_transform(dfa, method ='log', threshold = 0)
-sa.data_transform(dfb, method ='log', threshold = 0)
+sa.data_transform(dfa, method ='cubic', threshold = 0)
+sa.data_transform(dfb, method ='cubic', threshold = 0)
 ```
 
 ```python
@@ -117,23 +118,25 @@ score = sa.signal_map(gapd_s1, gapd_s2,)
 ```python
 import ArrayTools as at
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+#import matplotlib as mpl
 ```
 
 ```python
 fig = plt.figure(figsize=(20, 16))
 ax = fig.add_subplot(111)
 at.plot_alignment_array(
-    ax, alignments[0], fl_score= score, labels=["FCR3", "NF54"],
-    show_numbers=True,symbols_per_line= 120, show_line_position=True 
-)
+    ax, alignments[0], fl_score = score, labels = ["FCR3", "NF54"],
+    show_numbers = True, symbols_per_line = 120,
+    show_line_position = True) 
+
 # add a 2nd axes and a colorbar
 
 ax2 = fig.add_axes([0.1,-0.005, 0.8, 0.03])
 ax2.set_frame_on(False)
 cmp = at.get_cmap(ax2, score)
-cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'log', 
-                       orient = 'horizontal', title = 'Fluorescence Intensity [AU]')
+cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'cubic', 
+                       orient = 'horizontal', 
+                       title = 'Fluorescence Intensity [AU]')
 
 # to improve readability, tilt ticklabels on the colorbar
 
@@ -144,5 +147,9 @@ plt.show()
 ```
 
 ```python
-fig.savefig('log_cbar.png', transparent=False, dpi=80, bbox_inches="tight")
+fig.savefig('cubic_cbar.svg', transparent=True, dpi=80, bbox_inches="tight")
+```
+
+```python
+
 ```
