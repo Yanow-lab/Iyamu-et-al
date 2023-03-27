@@ -22,7 +22,7 @@ import biotite.sequence.io.fasta as fasta
 ```
 
 ```python
-fasta_file = fasta.FastaFile.read('seq.txt')
+fasta_file = fasta.FastaFile.read('Array_Seq.txt')
 ```
 
 ```python

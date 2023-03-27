@@ -53,12 +53,11 @@ def compute_params(dataframe, combine = 'mean', flag_noisy= True):
     combine: str. Optional
         'max' or 'mean'. Defines how to combine the spot replicates from the array,
         to give the spot signal. 
-        If 'max' is passed, the spot signal is determined by the geometric mean 
-        between replicates if they do not deviate more than 40%, otherwise the 
-        corresponding signal equals the replicate with the higest score value. 
+        If 'max' is passed, the spot signal is determined by the higher score
+        replicate. 
         If 'mean' is passed, the spot signal is determined by the geometric mean 
         between replicates if they do not deviate more than 40%, otherwise the 
-        corresponding signal value is zeroed. 
+        corresponding signal equals the replicate with the higest score value. 
         Default: 'mean'
     flag_noisy: bool. Optional
         if 'True', a "flag" of 0 or 1 is introduced at every peptide entry on the array: 1 if 
