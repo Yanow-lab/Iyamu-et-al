@@ -2,9 +2,9 @@
 
 ## Plotepiscan: Plots epitope mapping data from peptide arrays onto protein sequence alignments.
 
-Peptide arrays of overlapping sequences can be used to identify the epitope of antibodies on a target antigen at amino acid level, particlularly for monoclonal antibodies. The `plotepiscan.md` tool visualizes the data from epitope mapping screenings using color-coded sequence alignments of the antigens screened. In this study, we performed the epitope screenings using the monoclonal antibody 3D10 against immobilized arrays of overlapping peptides from the extracellular domain of two alleles of the *Plasmodiun falciparum* virulence factor VAR2CSA. Epitope scanning data was recorded as arbritary units(AU) of fluorescence intensity of each peptide. 
-* `Plotepiscan.md` normalizes the intensity data using either a linear or non-linear data transformations. Data transformations are available through the function `ArrayTools.data_transform()`. Cubic transformation was implemented in this study.
-* `Plotepiscan.md` mapps the array data onto a global alignment between the FCR3 and NF54 alleles highlighting the antibody recognition on each peptide array by a colour code from red to white for high to low intensity respectively. When plotting the alignment, the colored boxes on the background of the symbols corresponds to the flourescence intensity score for the corresponding 20-mer peptide that ends at that residue.
+Peptide arrays of overlapping sequences can be used to identify the epitope of antibodies on a protein antigen at amino acid level. Scannings for molecular recognition using peptide arrays, are particlularly potent for epitope identification on monoclonal antibodies. The `plotepiscan.md` tool visualizes the data from epitope mapping screenings, using a color-coded sequence alignment representation of the antigens screened. In this study, we performed epitope mapping campaings using the monoclonal antibody 3D10 against immobilized arrays of overlapping peptides. We targeted the extracellular domain of two alleles of the *Plasmodiun falciparum* virulence factor VAR2CSA. Arbritary units(AU) of fluorescence intensity quantified the antibody recognition for each peptide on the peptide array. 
+* `Plotepiscan.md` normalizes the intensity data using either a linear or non-linear data transformations. Several data transformations are available through the function `ArrayTools.data_transform()`. The power law with cubic exponent was the transformation implemented in this study.
+* `Plotepiscan.md` mapps the array data onto a global alignment between the FCR3 and NF54 alleles highlighting the antibody recognition on each peptide array by a colour code, from red to white for high to low intensity respectively. When plotting the alignment, the colored boxes on the background of the symbols corresponds to the flourescence intensity score for the corresponding 20-mer peptide that ends at that residue.
 To quantify the colormap representing the intensity data, a colorbar is generated in correspondence with the transformation applied. 
 
 ## Input files
@@ -16,4 +16,4 @@ To quantify the colormap representing the intensity data, a colorbar is generate
 ## Required dependencies.
 
 * Python package [Biotite](https://www.biotite-python.org) , version 0.35.0.
-* Python modules `ArrayTools.py` and `SignalArray.py`
+* Python modules `ArrayTools.py` and `SignalArray.py`, available on this repository.
