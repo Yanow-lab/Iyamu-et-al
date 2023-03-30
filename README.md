@@ -17,3 +17,9 @@ To quantify the colormap representing the intensity data, a colorbar is generate
 
 * Python package [Biotite](https://www.biotite-python.org) , version 0.35.0.
 * Python modules `ArrayTools.py` and `SignalArray.py`, available on this repository.
+
+<p align="center">
+ <img src="https://user-images.githubusercontent.com/123925494/228916143-e61c398f-4578-4516-9691-124c7294185c.png" width="390" height="150">
+</p>
+
+
