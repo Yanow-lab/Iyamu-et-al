@@ -17,7 +17,6 @@ jupyter:
 import matplotlib.pyplot as plt
 import biotite.sequence as seq
 import biotite.sequence.align as align
-import biotite.sequence.graphics as graphics
 import biotite.sequence.io.fasta as fasta
 ```
 
@@ -47,12 +46,11 @@ alignments = align.align_optimal(FCR3_seq, NF54_seq, matrix,
 ## Load epitope scan data
 
 ```python
-#import pandas as pd
 import SignalArray as sa
 ```
 
 ```python
-filenames=['FCR3_10ug.csv','NF54_10ug.csv']
+filenames = ['FCR3_10ug.csv','NF54_10ug.csv']
 ```
 
 ```python
@@ -63,10 +61,6 @@ for f in filenames:
     elif f == filenames[1]:
         ag2_scan = sa.read_scan(filenames[d], 20, 20)
     d = d + 1
-```
-
-```python
-#help(sa.read_scan)
 ```
 
 ```python
@@ -81,10 +75,6 @@ sa.data_describe(dfa) # Define a threshold
 ```python
 sa.data_transform(dfa, method ='cubic', threshold = 0)
 sa.data_transform(dfb, method ='cubic', threshold = 0)
-```
-
-```python
-#help(sa.data_transform)
 ```
 
 ## Convert a list of score residues from the epitope </br>scan data into a aligment-like gapped sequences 
@@ -103,22 +93,19 @@ gapd_s2 = sa.gapped_seq(dfb, traceB, 20, 2) # overlap_step: 2 (pep = 20-mer with
 ## Checkpoint
 
 ```python
-
 len(gapd_s1) == len(gapd_s2)
 ```
 
 ## Create a signal_map (ndarray)
 
 ```python
-score = sa.signal_map(gapd_s1, gapd_s2,)
+score = sa.signal_map(gapd_s1, gapd_s2)
 ```
 
 ## Plot
 
 ```python
 import ArrayTools as at
-import matplotlib.pyplot as plt
-#import matplotlib as mpl
 ```
 
 ```python
@@ -137,11 +124,6 @@ cmp = at.get_cmap(ax2, score)
 cbar = at.get_colorbar(ax2, dfa, dfb, cmp, transform = 'cubic', 
                        orient = 'horizontal', 
                        title = 'Fluorescence Intensity [AU]')
-
-# to improve readability, tilt ticklabels on the colorbar
-
-# labls = cbar.ax.get_xticklabels()
-# plt.setp(labls, rotation=45, horizontalalignment='center')
 
 plt.show()
 ```
